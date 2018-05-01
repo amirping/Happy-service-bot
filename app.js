@@ -9,6 +9,7 @@ app.listen((process.env.PORT || 5000));
 
 // Server index route 
 app.get("/", function (req, res) {
+  console.log("just a check");
   res.send("Deployed! BOT server is on");
 });
 app.post("/", function (req, res) {
