@@ -13,5 +13,6 @@ app.get("/", function (req, res) {
   res.send("Deployed! BOT server is on");
 });
 app.post("/", function (req, res) {
+  console.log(req);
   res.send(req);
 })
