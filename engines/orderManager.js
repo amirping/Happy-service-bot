@@ -18,13 +18,13 @@ module.exports = {
         order_list[sessionId] = new Order(sessionId,[]);
     },
     cancelOrder: function (order_list, sessionId , STAT_FLAG){
-        order_list[sessionId] = null;
+        order_list[sessionId].setOrderStat(STAT_FLAG);
         // notify db 
         // notify panel
     },
     confirmOrder: function (order_list, sessionId , STAT_FLAG){
-        // push to db 
-        // push to panel 
+        order_list[sessionId].setOrderStat(STAT_FLAG);
+        order_list[sessionId].setOrderTime(Date.now());
     },
     trackOrder: function (sessionId){
         // return order stat

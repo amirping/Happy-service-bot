@@ -4,10 +4,17 @@ var bodyParser = require("body-parser");
 const reqParser = require('./libs/reqParser');
 var Order = require('./models/order');
 const orderManger = require('./engines/orderManager');
+const rtEngine = require('./engines/realTimeEngin');
 var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+var rtClient ;
+const STAT_FLAG_CONF_USER = 1;
+const STAT_FLAG_CONF_RESTO = 2;
+const STAT_FLAG_CANCEL_USER = -1;
+const STAT_FLAG_CANCEL_RESTO = -2;
 
-
-app.listen((process.env.PORT || 5000), '0.0.0.0');
+server.listen((process.env.PORT || 5000), '0.0.0.0');
 // run time needed 
 var order_list = new Array();
 
@@ -55,8 +62,11 @@ app.post("/", function (req, res) {
       res.status(200).json({order:"cancel",reason:"canceled by user"});
     }
     else if (reqParser.getAction(data_in) === orderManger.CONFIRM){
-      orderManger.confirmOrder(order_list,session,1);
+      orderManger.confirmOrder(order_list, session, STAT_FLAG_CONF_USER);
+      // validate -> send to db -> send to user RT
       console.log("confirmed session -> notify all");
+      // db have to perio if success db add then sand to rt else abort
+      rtEngine.sendOrder(order_list[session],rtClient);
     }
     else{
       // depand on action -> do
@@ -84,3 +94,13 @@ app.post("/", function (req, res) {
   //res.send(req);
   res.status(200).send({"req":true})
 })
+
+// Rt things 
+io.on('connection', function (socket) {
+  console.log("connected user RT");
+  rtClient = socket;
+  socket.emit('message', { hello: 'world' });
+  socket.on('message', function (data) {
+    console.log(data);
+  });
+});

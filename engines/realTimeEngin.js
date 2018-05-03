@@ -1,17 +1,30 @@
 module.exports = {
-    getSession: function (req) {
+    
+    sendOrder:function(Order,socket){
+        socket.emit('getOrder',Order);
+    },
+    sendReservation:function(Reservation){
 
     },
-    getAction: function (req) {
+    updateClient:function(){
 
     },
-    getParams: function (req) {
+    sendCancelOrder:function(){
 
     },
-    getMessage: function (req) {
+    sendCancelReservation:function(){
 
     },
-    getContext: function (req) {
+    onAcceptOrder:function(){
+
+    },
+    onAcceptReservation:function(){
+
+    },
+    onRejectOrder:function(){
+
+    },
+    onRejectReservation:function(){
 
     }
 
