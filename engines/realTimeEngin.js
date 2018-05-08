@@ -6,11 +6,13 @@ module.exports = {
     sendReservation:function(Reservation){
 
     },
-    updateClient:function(){
-
+    updateClient:function(update_pack,socket){
+        console.log("let's update the client");
+        console.log(update_pack);
+        socket.emit('getUpdate',update_pack);
     },
-    sendCancelOrder:function(){
-
+    sendCancelOrder:function(sessionId,socket){
+        socket.emit('cancelOrder',sessionId);
     },
     sendCancelReservation:function(){
 

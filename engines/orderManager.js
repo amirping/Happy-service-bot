@@ -33,13 +33,30 @@ module.exports = {
         return Object.keys(order_list).length;
     },
     addToOrder:function(params,order,message,queryid){
+        //console.log("you fire me whene ");
+        //console.log(JSON.stringify(params));
         params.menu_item.forEach(function (element, i) {
-            let number = params.number[i] != null ? params.number[i] : 1 ;
-            let extra = params['unit-weight-name'][i] != null ? params['unit-weight-name'][i] : '' ;
+            let number = (params.number[i] != null && params.number != undefined) ? params['number'][i] : 1 ;
+            let extra = (params['unit-weight-name'][i] != null && params['unit-weight-name'] != undefined) ? params['unit-weight-name'][i] : '' ;
             let item = new OrderItem(element,queryid,message,extra,number);
             // console.log("item to add is ");
             // console.log(item);
             order.addOrderItems(item);
         });
+    },
+    getPackOrder:function(order_list){
+        // return all order with stat not actionIncomplete
+        var order_pack = [];
+        console.log("generate pack plz wait");
+        let keys = Object.keys(order_list);
+        keys.forEach(orderKey => {
+            let order = order_list[orderKey];
+            console.log("order to pack");
+            console.log(order);
+            if (order.order_stat != 0) {
+                order_pack.push(order)
+            }
+        });
+       return order_pack; 
     }
 }

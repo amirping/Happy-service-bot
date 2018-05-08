@@ -25,7 +25,7 @@ module.exports = {
         contexts.forEach(element => {
             //console.log("isReservation loop");
             //console.log(element.name);
-            if (element.name === "order" || element.name.startsWith('order')) {
+            if (element.name === "order" || element.name.startsWith('order') || element.name.endsWith('order')) {
                 flag = false;
             }
         });

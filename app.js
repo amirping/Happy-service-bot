@@ -59,7 +59,8 @@ app.post("/", function (req, res) {
     if (reqParser.getAction(data_in) === orderManger.CANCEL){
       orderManger.cancelOrder(order_list,session);
       console.log("end this session ->");
-      res.status(200).json({order:"cancel",reason:"canceled by user"});
+      rtEngine.sendCancelOrder(session,rtClient);
+      //res.status(200).json({order:"cancel",reason:"canceled by user"});
     }
     else if (reqParser.getAction(data_in) === orderManger.CONFIRM){
       orderManger.confirmOrder(order_list, session, STAT_FLAG_CONF_USER);
@@ -100,6 +101,11 @@ io.on('connection', function (socket) {
   console.log("connected user RT");
   rtClient = socket;
   socket.emit('message', { hello: 'world' });
+  // create pack to send to client 
+  let pack = {
+    'update_order':orderManger.getPackOrder(order_list)
+  }
+  rtEngine.updateClient(pack,rtClient);
   socket.on('message', function (data) {
     console.log(data);
   });
