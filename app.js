@@ -59,7 +59,7 @@ app.post("/", function (req, res) {
     if (reqParser.getAction(data_in) === orderManger.CANCEL){
       orderManger.cancelOrder(order_list,session);
       console.log("end this session ->");
-      rtEngine.sendCancelOrder(session,rtClient);
+      rtEngine.sendCancelOrder(order_list[session].sessionId,rtClient);
       //res.status(200).json({order:"cancel",reason:"canceled by user"});
     }
     else if (reqParser.getAction(data_in) === orderManger.CONFIRM){
@@ -67,7 +67,17 @@ app.post("/", function (req, res) {
       // validate -> send to db -> send to user RT
       console.log("confirmed session -> notify all");
       // db have to perio if success db add then sand to rt else abort
-      rtEngine.sendOrder(order_list[session],rtClient);
+      orderManger.saveOrder(order_list[session]).then((response)=>{
+        if(response.data.ok === true && response.data.msg === 'saved')
+        {
+          let id_ord = response.data.id;
+          order_list[session].sessionId = id_ord;
+          rtEngine.sendOrder(order_list[session], rtClient);
+        }
+      })
+      .catch((err)=>{
+        console.log(err);
+      })
     }
     else{
       // depand on action -> do

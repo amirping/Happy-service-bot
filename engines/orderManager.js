@@ -1,5 +1,8 @@
 const Order = require('../models/order');
 const OrderItem = require('../models/orderItem');
+var http = require('http');
+const axios = require('axios');
+const APIdomain = 'http://localhost:3000/api/order';
 module.exports = {
     START: "order_start",
     ADD: "oder_add_item",
@@ -58,5 +61,10 @@ module.exports = {
             }
         });
        return order_pack; 
+    },
+    saveOrder:function(order){
+        return axios.post(APIdomain, {
+            order: order,
+        })
     }
 }
