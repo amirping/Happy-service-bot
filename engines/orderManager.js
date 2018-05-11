@@ -5,7 +5,7 @@ const axios = require('axios');
 const APIdomain = 'http://localhost:3000/api/order';
 module.exports = {
     START: "order_start",
-    ADD: "oder_add_item",
+    ADD: "order_add_item",
     CANCEL: "order_cancel",
     CONFIRM: "order_confirm",
     /**
@@ -21,13 +21,18 @@ module.exports = {
         order_list[sessionId] = new Order(sessionId,[]);
     },
     cancelOrder: function (order_list, sessionId , STAT_FLAG){
-        order_list[sessionId].setOrderStat(STAT_FLAG);
+       //-> err  //  order_list[sessionId].setOrderStat(STAT_FLAG);
+        order_list[sessionId].order_stat = STAT_FLAG
         // notify db 
+        return axios.patch(APIdomain + "/" + order_list[sessionId]._id, { 'orderStat': -1 })
         // notify panel
     },
     confirmOrder: function (order_list, sessionId , STAT_FLAG){
-        order_list[sessionId].setOrderStat(STAT_FLAG);
-        order_list[sessionId].setOrderTime(Date.now());
+       //-> err // order_list[sessionId].setOrderStat(STAT_FLAG);
+        order_list[sessionId].order_stat = STAT_FLAG
+        if(STAT_FLAG === 1){
+            order_list[sessionId].setOrderTime(Date.now());
+        }
     },
     trackOrder: function (sessionId){
         // return order stat
@@ -66,5 +71,8 @@ module.exports = {
         return axios.post(APIdomain, {
             order: order,
         })
+    },
+    reloadPendingOrder:function(){
+        return axios.get(APIdomain)
     }
 }
