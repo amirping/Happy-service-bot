@@ -3,10 +3,26 @@ const reservationManger = require('../engines/reservationManger');
 module.exports = {
     
     sendOrder:function(Order,socket){
-        socket.emit('getOrder',Order);
+        if(socket != undefined && socket != null){
+
+            socket.emit('getOrder',Order);
+        }
+        else{
+            console.log("Client Not on the Listen -> i will send an update to him when he come home ;* ");
+            
+        }
     },
     sendReservation:function(Reservation,socket){
-        socket.emit('getReservation', Reservation);
+        console.log("about to send ");
+        console.log(Reservation);
+        if(socket != undefined && socket != null){
+
+            socket.emit('getReservation', Reservation);
+        }
+        else{
+            console.log("Client Not on the Listen -> i will send an update to him when he come home ;* ");
+            
+        }
     },
     updateClient:function(update_pack,socket){
         console.log("let's update the client");

@@ -32,9 +32,25 @@ module.exports = {
     trackReservation: function () {
 
     },
+    getPackReservation: function (reservation_list) {
+        // return all order with stat not actionIncomplete
+        var reservation_pack = [];
+        console.log("generate pack plz wait");
+        let keys = Object.keys(reservation_list);
+        keys.forEach(reservationKey => {
+            let reservation = reservation_list[reservationKey];
+            console.log("reservation to pack");
+            console.log(reservation);
+            if (reservation.reservation_stat != 0) {
+                reservation_pack.push(reservation)
+            }
+        });
+        return reservation_pack;
+    }
+    ,
     saveReservation: function (reservation) {
         return axios.post(APIdomain, {
-            order: reservation,
+            reservation: reservation,
         });
     },
     reloadPendingReservation: function () {

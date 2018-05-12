@@ -23,7 +23,7 @@ var reservation_list = new Array();
 orderManger.reloadPendingOrder().then((response) => {
     if (response.data.ok === true) {
       response.data.data.forEach(order => {
-        if (order.order_stat === 1) {
+        if (order.order_stat === 1 || order.order_stat === 2) {
           // this is pending order 
           order_list[order.sessionId] = order;
         }
@@ -37,9 +37,9 @@ orderManger.reloadPendingOrder().then((response) => {
 reservationManger.reloadPendingReservation().then((response) => {
     if (response.data.ok === true) {
       response.data.data.forEach(reservation => {
-        if (reservation.reservation_stat === 1) {
+        if (reservation.reservation_stat === 1 || reservation.reservation_stat === 2) {
           // this is pending order 
-          reservation_list[order.sessionId] = reservation;
+          reservation_list[reservation.sessionId] = reservation;
         }
       });
     }
@@ -150,12 +150,37 @@ app.post("/", function (req, res) {
       console.log("it's reservation pass");
       // we don't trigger creator until we are sure we have enough arags to fire up 
       if(reqParser.isCompletAction(data_in)){
-       console.log("we have erevy thing in so let's go");
-      // parse params start every thing then save , push ... come on dude  you can do that 
+       console.log("we have every thing in so let's go");
+       // parse params start every thing then save , push ... come on dude  you can do that
+        let params = reqParser.getParams(data_in);
+        reservation.setReservationDate(params.date);
+        reservation.setReservationTime(params.time);
+        reservationManger.confirmReservation(reservation_list,session,STAT_FLAG_CONF_USER);
+        // save db then 
+        reservationManger.saveReservation(reservation_list[session]).then((response) => {
+          if (response.data.ok === true && response.data.msg === 'saved') {
+            let id_reservation = response.data.id;
+            reservation_list[session]._id = id_reservation;
+            console.log("send now");
+            rtEngine.sendReservation(reservation_list[session], rtClient); 
+          }
+        })
+          .catch((err) => {
+            console.log(err);
+          })
       } 
     } else if (reqParser.getAction(data_in) === reservationManger.CANCEL) {
       // emmm , let(s delete that one)
       console.log("it's cancel of reservation");
+      reservationManger.cancelReservation(reservation_list, session, STAT_FLAG_CANCEL_USER).then(data => {
+        if (data.data.ok === true) {
+          console.log("end this session ->");
+          rtEngine.sendCancelReservation(reservation_list[session].sessionId, rtClient);
+          //res.status(200).json({order:"cancel",reason:"canceled by user"});
+        }
+      }).catch(err => {
+        console.log(err);
+      })
     }
     else{
       // that's weird coz we don't come here in any case but u know we have to expect every thing when you deal with humans
@@ -177,7 +202,7 @@ io.on('connection', function (socket) {
   // create pack to send to client 
   let pack = {
     'update_order': orderManger.getPackOrder(order_list),
-    'update_reservation': [] // dev only 
+    'update_reservation': reservationManger.getPackReservation(reservation_list) 
   }
   rtEngine.updateClient(pack, rtClient);
   socket.on('message', function (data) {
